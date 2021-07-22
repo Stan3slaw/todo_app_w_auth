@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { Route, Switch, Redirect } from 'react-router-dom';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+import Layout from './layouts/Layout';
+import Login from './pages/Auth/Login/Login';
+import Logout from './pages/Auth/Logout/Logout';
+import SignUp from './pages/Auth/SignUp/SignUp';
+import Todos from './pages/Todos/Todos';
+
+const App = () => {
+  const loggedIn = useSelector(({ firebase }) =>
+    firebase.auth.uid ? true : null
   );
-}
+  let routes;
+  if (loggedIn) {
+    routes = (
+      <Switch>
+        <Route exact path='/' component={Todos} />
+        <Route exact path='/logout' component={Logout} />
+        <Redirect to='/' />
+      </Switch>
+    );
+  } else {
+    routes = (
+      <Switch>
+        <Route exact path='/login' component={Login} />
+        <Route exact path='/signup' component={SignUp} />
+        <Redirect to='/login' />
+      </Switch>
+    );
+  }
+  return <Layout>{routes}</Layout>;
+};
 
 export default App;
