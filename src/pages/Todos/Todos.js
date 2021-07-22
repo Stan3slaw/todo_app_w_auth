@@ -6,8 +6,9 @@ import styled from 'styled-components';
 import Heading from '../../components/Headings/Heading';
 import Spinner from '../../components/Spinner/Spinner';
 import { Container } from '../../layouts/elements';
-import AddTodo from './AddTodo/AddTodo';
+import InputTodo from './InputTodo/InputTodo';
 import Todo from './Todo/Todo';
+import Button from '../../components/Button/Button';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -33,6 +34,7 @@ const Content = styled.div`
 `;
 
 const Todos = () => {
+  const [isAdding, setIsAdding] = React.useState(false);
   const userId = useSelector(({ firebase }) => firebase.auth.uid);
   useFirestoreConnect([`todos/${userId}`]);
   const todos = useSelector(({ firestore }) => firestore.data.todos);
@@ -58,9 +60,12 @@ const Todos = () => {
   } else {
     content = (
       <Content>
-        {todos[userId].todos.map((todo) => (
-          <Todo key={todo.id} todo={todo} />
-        ))}
+        {todos[userId].todos
+          .slice(0)
+          .reverse()
+          .map((todo) => (
+            <Todo key={todo.id} todo={todo} />
+          ))}
       </Content>
     );
   }
@@ -74,7 +79,10 @@ const Todos = () => {
           <Heading bold size='h4'>
             Here are your todos
           </Heading>
-          <AddTodo />
+          <Button contain onClick={() => setIsAdding(true)}>
+            Add Todo
+          </Button>
+          <InputTodo opened={isAdding} close={() => setIsAdding(false)} />
           {content}
         </InnerWrapper>
       </Container>

@@ -30,36 +30,39 @@ const TodoSchema = Yup.object().shape({
   todo: Yup.string().required('The todo is required.').min(3, 'Too short.'),
 });
 
-const AddTodo = () => {
+const InputTodo = ({ editTodo, opened, close }) => {
+  const loadingText = editTodo ? 'Editing...' : 'Adding...';
   const dispatch = useDispatch();
   const { error, loading } = useSelector(({ todos }) => todos);
-  const [isOpened, setIsOpened] = React.useState(false);
   return (
     <>
-      <Button contain onClick={() => setIsOpened(true)}>
-        Add Todo
-      </Button>
-      <Modal opened={isOpened} close={() => setIsOpened(false)}>
+      <Modal opened={opened} close={close}>
         <Heading noMargin size='h1' color='white'>
-          Add your new todo
+          {editTodo ? 'Edit your todo' : 'Add your new todo'}
         </Heading>
         <Heading bold size='h4' color='white'>
-          Type your todo and press add
+          {editTodo
+            ? 'Edit your todo and tap edit'
+            : 'Type your todo and press add'}
         </Heading>
         <Formik
           initialValues={{
-            todo: '',
+            todo: editTodo ? editTodo.todo : '',
           }}
           validationSchema={TodoSchema}
-          onSubmit={(values, { setSubmitting }) => {
-            const res = dispatch(actions.addTodo(values));
+          onSubmit={async (values, { setSubmitting, resetForm }) => {
+            // send our todo
+            const res = editTodo
+              ? dispatch(actions.editTodo(editTodo.id, values))
+              : dispatch(actions.addTodo(values));
             if (res) {
-              setIsOpened(false);
+              close();
             }
             setSubmitting(false);
+            resetForm();
           }}
         >
-          {({ isSubmitting, isValid, dirty }) => (
+          {({ isSubmitting, isValid, resetForm }) => (
             <StyledForm>
               <Field
                 type='text'
@@ -70,16 +73,21 @@ const AddTodo = () => {
               <ButtonsWrapper>
                 <Button
                   contain
+                  color='main'
                   type='submit'
-                  disabled={!(isValid && dirty) || isSubmitting}
-                  loading={loading ? 'Adding...' : null}
+                  disabled={!isValid || isSubmitting}
+                  loading={loading ? loadingText : null}
                 >
-                  Add todo
+                  {editTodo ? 'Edit todo' : 'Add todo'}
                 </Button>
                 <Button
-                  contain
                   type='button'
-                  onClick={() => setIsOpened(false)}
+                  color='main'
+                  contain
+                  onClick={() => {
+                    close();
+                    resetForm();
+                  }}
                 >
                   Cancel
                 </Button>
@@ -97,4 +105,4 @@ const AddTodo = () => {
   );
 };
 
-export default AddTodo;
+export default InputTodo;

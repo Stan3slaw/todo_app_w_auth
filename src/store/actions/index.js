@@ -1,2 +1,2 @@
 export { signUp, signOut, signIn, clean } from './authActions';
-export { addTodo } from './todosActions';
+export { addTodo, deleteTodo, editTodo } from './todosActions';

@@ -3,6 +3,10 @@ import * as actions from '../actions/types';
 const initialState = {
   error: null,
   loading: false,
+  deleteTodo: {
+    error: null,
+    loading: false,
+  },
 };
 
 const todosReducer = (state = initialState, action) => {
@@ -12,7 +16,23 @@ const todosReducer = (state = initialState, action) => {
     case actions.ADD_TODO_SUCCESS:
       return { ...state, error: false, loading: false };
     case actions.ADD_TODO_FAIL:
-      return { ...state, error: action.payload };
+      return { ...state, loading: false, error: action.payload };
+    case actions.DELETE_TODO_START:
+      return { ...state, deleteTodo: { ...state.deleteTodo, loading: true } };
+    case actions.DELETE_TODO_SUCCESS:
+      return {
+        ...state,
+        deleteTodo: { ...state.deleteTodo, error: false, loading: false },
+      };
+    case actions.DELETE_TODO_FAIL:
+      return {
+        ...state,
+        deleteTodo: {
+          ...state.deleteTodo,
+          loading: false,
+          error: action.payload,
+        },
+      };
     default:
       return state;
   }
